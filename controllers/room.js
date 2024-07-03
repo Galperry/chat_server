@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 exports.getRoomList = (req, res, next) => {
   Room.find({}).then((doc) => {
-    res.send(doc);
+    res.send({ isSucceed: true, roomList: doc });
   });
 };
 
@@ -24,24 +24,6 @@ exports.getRoomMessages = (req, res, next) => {
     });
   }
 }; // can reuse parts of it when updating read messages
-
-exports.addMessage = (req, res, next) => {
-  const userId = req.body.userId;
-  const roomId = req.body.roomId;
-  const content = req.body.content;
-  const message = new Message({
-    userId,
-    roomId,
-    content,
-    timestamp: Date.now(),
-    isRead: false,
-  });
-
-  message
-    .save()
-    .then((result) => res.send(result))
-    .catch((err) => console.log(err));
-}; // in future - add validations for dataTypes (userId)
 
 exports.setReadMessages = (req, res, next) => {
   const userId = req.body.userId;

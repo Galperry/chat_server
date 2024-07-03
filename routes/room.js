@@ -4,16 +4,13 @@ const roomController = require('../controllers/room');
 
 const router = express.Router();
 
-// /rooms/roomList => GET
+// /room/roomList => GET
 router.get('/roomList', roomController.getRoomList);
 
-// // /rooms/getRoomMessages => GET
+// // /room/getRoomMessages => GET
 router.get('/getRoomMessages/:roomId', roomController.getRoomMessages);
 
-// /rooms/addMessage => POST
-router.post('/addMessage', roomController.addMessage);
-
-// /rooms/readMessages => POST
+// /room/readMessages => POST
 router.post('/readMessages', roomController.setReadMessages);
 
 // add room, delete room APIs if time allows it
