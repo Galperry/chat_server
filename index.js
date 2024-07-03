@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const url = require('url');
+const cors = require('cors');
+const Message = require('./models/message');
 
 const app = express();
 const PORT = 8080;
@@ -26,14 +27,31 @@ const io = require('socket.io')(server, {
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('message', (message) => {
-    console.log(message);
-    io.emit('message', `${socket.id.substr(0, 2)} said ${message}`);
+  socket.on('message', (receivedMsg) => {
+    const userId = receivedMsg.userId;
+    const roomId = receivedMsg.roomId;
+    const content = receivedMsg.content;
+
+    const message = new Message({
+      userId,
+      roomId,
+      content,
+      timestamp: Date.now(),
+      isRead: false,
+    });
+
+    message
+      .save()
+      .then((result) => io.emit('message', result))
+      .catch((err) => console.log(err));
+    //io.emit('message', `${socket.id.substr(0, 2)} said ${message}`);
   });
-});
+}); // in future - add validations for dataTypes (userId, roomId)
 
 const userRoutes = require('./routes/user');
 const roomRoutes = require('./routes/room');
+
+app.use(cors());
 
 app.use('/user', userRoutes);
 app.use('/room', roomRoutes);
