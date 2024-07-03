@@ -3,8 +3,11 @@ var mongoose = require('mongoose');
 
 exports.userList = (req, res, next) => {
   User.find({}).then((doc) => {
-    res.send(doc);
-  }); // future improvment: map it to a prettier/more secure set of data (e.g. omit passwords)
+    res.send({
+      isSucceed: true,
+      userList: doc.map((user) => ({ id: user._id, name: user.username })),
+    });
+  });
 };
 
 exports.getUser = (req, res, next) => {
@@ -58,7 +61,7 @@ exports.login = (req, res, next) => {
   const password = req.body.password;
   User.findOne({ username, password }).then((doc) => {
     if (doc) {
-      res.send({ isSucceed: true });
+      res.send({ isSucceed: true, userId: doc._id });
     } else {
       res.send({ isSucceed: false, message: 'Invalid username or password' });
     }
