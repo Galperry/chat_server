@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Message = require('./models/message');
+const Room = require('./models/room');
 
 const app = express();
 const PORT = 8080;
@@ -45,6 +46,58 @@ io.on('connection', (socket) => {
       .then((result) => io.emit('message', result))
       .catch((err) => console.log(err));
     //io.emit('message', `${socket.id.substr(0, 2)} said ${message}`);
+  });
+
+  socket.on('getMessages', (roomId) => {
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      io.emit('getMessages', { isSucceed: false, message: 'Room id invalid' });
+    } else {
+      Room.findById(roomId).then((doc) => {
+        if (doc) {
+          Message.find({ roomId })
+            .sort({ timestamp: 'asc' })
+            .then((msgDocs) => {
+              io.emit('getMessages', { isSucceed: true, messages: msgDocs });
+            });
+        } else {
+          io.emit('getMessages', {
+            isSucceed: false,
+            message: 'Room does not exist',
+          });
+        }
+      });
+    }
+  });
+
+  socket.on('readMessages', ({ userId, roomId, lastTimestamp }) => {
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      io.emit('readMessages', { isSucceed: false, message: 'Room id invalid' });
+    } else {
+      Room.findById(roomId).then((doc) => {
+        if (doc) {
+          Message.updateMany(
+            {
+              roomId,
+              userId: { $ne: userId },
+              timestamp: { $lte: lastTimestamp },
+              isRead: false,
+            },
+            { isRead: true }
+          ).then(() => {
+            io.emit('readMessages', {
+              isSucceed: true,
+              lastTimestamp,
+              readingUser: userId,
+            });
+          });
+        } else {
+          io.emit('readMessages', {
+            isSucceed: false,
+            message: 'Room does not exist',
+          });
+        }
+      });
+    }
   });
 }); // in future - add validations for dataTypes (userId, roomId)
 

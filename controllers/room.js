@@ -15,9 +15,11 @@ exports.getRoomMessages = (req, res, next) => {
   } else {
     Room.findById(roomId).then((doc) => {
       if (doc) {
-        Message.find({ roomId }).then((msgDocs) => {
-          res.send({ isSucceed: true, messages: msgDocs });
-        });
+        Message.find({ roomId })
+          .sort({ timestamp: 'asc' })
+          .then((msgDocs) => {
+            res.send({ isSucceed: true, messages: msgDocs });
+          });
       } else {
         res.send({ isSucceed: false, message: 'Room does not exist' });
       }
