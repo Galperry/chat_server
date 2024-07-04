@@ -7,11 +7,12 @@ const router = express.Router();
 // /room/roomList => GET
 router.get('/roomList', roomController.getRoomList);
 
-// // /room/getRoomMessages => GET
-router.get('/getRoomMessages/:roomId', roomController.getRoomMessages);
+//these two calls are now implemented with socket.io
+// // // /room/getRoomMessages => GET
+// router.get('/getRoomMessages/:roomId', roomController.getRoomMessages);
 
-// /room/readMessages => POST
-router.post('/readMessages', roomController.setReadMessages);
+// // /room/readMessages => POST
+// router.post('/readMessages', roomController.setReadMessages);
 
 // add room, delete room APIs if time allows it
 

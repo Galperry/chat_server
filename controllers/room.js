@@ -1,6 +1,4 @@
-const Message = require('../models/message');
 const Room = require('../models/room');
-var mongoose = require('mongoose');
 
 exports.getRoomList = (req, res, next) => {
   Room.find({}).then((doc) => {
@@ -8,50 +6,52 @@ exports.getRoomList = (req, res, next) => {
   });
 };
 
-exports.getRoomMessages = (req, res, next) => {
-  const roomId = req.params.roomId;
-  if (!mongoose.Types.ObjectId.isValid(roomId)) {
-    res.send({ isSucceed: false, message: 'Room id invalid' });
-  } else {
-    Room.findById(roomId).then((doc) => {
-      if (doc) {
-        Message.find({ roomId })
-          .sort({ timestamp: 'asc' })
-          .then((msgDocs) => {
-            res.send({ isSucceed: true, messages: msgDocs });
-          });
-      } else {
-        res.send({ isSucceed: false, message: 'Room does not exist' });
-      }
-    });
-  }
-}; // can reuse parts of it when updating read messages
+// these two are now implemented with socket.io
 
-exports.setReadMessages = (req, res, next) => {
-  const userId = req.body.userId;
-  const roomId = req.body.roomId;
-  const lastTimestamp = req.body.timestamp;
+// exports.getRoomMessages = (req, res, next) => {
+//   const roomId = req.params.roomId;
+//   if (!mongoose.Types.ObjectId.isValid(roomId)) {
+//     res.send({ isSucceed: false, message: 'Room id invalid' });
+//   } else {
+//     Room.findById(roomId).then((doc) => {
+//       if (doc) {
+//         Message.find({ roomId })
+//           .sort({ timestamp: 'asc' })
+//           .then((msgDocs) => {
+//             res.send({ isSucceed: true, messages: msgDocs });
+//           });
+//       } else {
+//         res.send({ isSucceed: false, message: 'Room does not exist' });
+//       }
+//     });
+//   }
+// }; // can reuse parts of it when updating read messages
 
-  if (!mongoose.Types.ObjectId.isValid(roomId)) {
-    res.send({ isSucceed: false, message: 'Room id invalid' });
-  } else {
-    Room.findById(roomId).then((doc) => {
-      if (doc) {
-        Message.updateMany(
-          {
-            roomId,
-            userId: { $ne: userId },
-            timestamp: { $lte: lastTimestamp },
-            isRead: false,
-          },
-          { isRead: true }
-        ).then((msgDocs) => {
-          console.log('msgdocs', msgDocs);
-          res.send({ isSucceed: true });
-        });
-      } else {
-        res.send({ isSucceed: false, message: 'Room does not exist' });
-      }
-    });
-  }
-};
+// exports.setReadMessages = (req, res, next) => {
+//   const userId = req.body.userId;
+//   const roomId = req.body.roomId;
+//   const lastTimestamp = req.body.timestamp;
+
+//   if (!mongoose.Types.ObjectId.isValid(roomId)) {
+//     res.send({ isSucceed: false, message: 'Room id invalid' });
+//   } else {
+//     Room.findById(roomId).then((doc) => {
+//       if (doc) {
+//         Message.updateMany(
+//           {
+//             roomId,
+//             userId: { $ne: userId },
+//             timestamp: { $lte: lastTimestamp },
+//             isRead: false,
+//           },
+//           { isRead: true }
+//         ).then((msgDocs) => {
+//           console.log('msgdocs', msgDocs);
+//           res.send({ isSucceed: true });
+//         });
+//       } else {
+//         res.send({ isSucceed: false, message: 'Room does not exist' });
+//       }
+//     });
+//   }
+// };
