@@ -3,15 +3,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const Message = require('./models/message');
 const Room = require('./models/room');
+require('dotenv').config();
 
 const app = express();
 const PORT = 8080;
-const dbUri =
-  'mongodb+srv://yamitoboushi:IVh1r2DKHZBE1DRg@chatappdb.xwpgxk7.mongodb.net/Chat?appName=ChatAppDB';
 app.use(express.json());
 
 mongoose
-  .connect(dbUri)
+  .connect(process.env.DB_CONNECTION_STRING)
   .then((result) => {
     console.log('connected to db');
   })
