@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
     //io.emit('message', `${socket.id.substr(0, 2)} said ${message}`);
   });
 
-  socket.on('getMessages', (roomId) => {
+  socket.on('getMessages', (roomId, userId) => {
     if (!mongoose.Types.ObjectId.isValid(roomId)) {
       io.emit('getMessages', { isSucceed: false, message: 'Room id invalid' });
     } else {
@@ -56,7 +56,11 @@ io.on('connection', (socket) => {
           Message.find({ roomId })
             .sort({ timestamp: 'asc' })
             .then((msgDocs) => {
-              io.emit('getMessages', { isSucceed: true, messages: msgDocs });
+              io.emit('getMessages', {
+                isSucceed: true,
+                messages: msgDocs,
+                userId,
+              });
             });
         } else {
           io.emit('getMessages', {
